@@ -4,6 +4,7 @@ import NotFound from "@/pages/NotFoundPage.vue";
 
 // Admin pages
 import Dashboard from "@/pages/Dashboard.vue";
+import DetailArticle from "@/pages/DetailArticle.vue";
 import UserProfile from "@/pages/UserProfile.vue";
 import Notifications from "@/pages/Notifications.vue";
 import Icons from "@/pages/Icons.vue";
@@ -87,6 +88,11 @@ const routes = [
         path: "dashboard",
         name: "dashboard",
         component: Dashboard,
+      },
+      {
+        path: "article-detail/:id",
+        name: "article-detail",
+        component: DetailArticle,
       },
       {
         path: "stats",

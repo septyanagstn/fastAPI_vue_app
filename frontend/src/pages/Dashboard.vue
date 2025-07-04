@@ -7,7 +7,7 @@
       style="height: 150px;"
     >
       <router-link
-        :to="`/warta/articles/${article.id}`"
+        :to="{ name: 'article-detail', params: { id: article._id }}"
         class="d-flex w-100 text-decoration-none text-dark"
       >
         <!-- Gambar -->
@@ -24,7 +24,7 @@
         <div class="p-3 d-flex flex-column justify-content-center flex-grow-1">
           <h5 class="mb-2 fw-bold">{{ article.title }}</h5>
           <div class="d-flex align-items-center text-secondary small">
-            <span class="me-2">{{ article.author }}</span><span class="ms-2">{{ formatDate(article.post_date) }}</span>
+            <span class="me-2">{{ article.author }}</span>-<span class="ms-2">{{ formatDate(article.post_date) }}</span>
           </div>
         </div>
       </router-link>
