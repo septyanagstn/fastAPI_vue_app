@@ -38,6 +38,13 @@ async def root():
 # Register
 @app.post("/register/")
 async def register(user: User = Body(...)):
+    existing_user = await database["users"].find_one({"username": user.username})
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already exists"
+        )
+
     new_user = await database["users"].insert_one({
         "username": user.username,
         "email": user.email,
