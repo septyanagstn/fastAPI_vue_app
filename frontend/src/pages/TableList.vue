@@ -3,12 +3,7 @@
     <div class="col-12">
       <card title="Kelola Berita" subTitle="Lorem ipsum dolor sit amet">
         <div class="mb-2 d-flex justify-content-end">
-          <button
-            type="button"
-            name="add"
-            class="btn btn-success btn-xs"
-            @click="openAddModal()"
-          >
+          <button type="button" name="add" class="btn btn-success btn-xs" @click="openAddModal()">
             Add Berita <span class="ti-plus"></span>
           </button>
         </div>
@@ -26,7 +21,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(article, index) in articles" :key="index">
+            <tr v-for="(article, index) in displayedArticles" :key="index">
               <td>{{ index + 1 }}</td>
               <td>{{ shortenText(article.title) }}</td>
               <td>{{ article.author }}</td>
@@ -34,35 +29,33 @@
               <td>{{ shortenText(article.content) }}</td>
               <td>{{ shortenText(article.thumbnail) }}</td>
               <td>
-                <button
-                  type="button"
-                  class="btn btn-primary btn-xs"
-                  @click="openEditModal(article._id)"
-                >
+                <button type="button" class="btn btn-primary btn-xs" @click="openEditModal(article._id)">
                   Edit
                 </button>
               </td>
               <td>
-                <button
-                  type="button"
-                  class="btn btn-danger btn-xs"
-                  @click="openDeleteModal(article._id)"
-                >
+                <button type="button" class="btn btn-danger btn-xs" @click="openDeleteModal(article._id)">
                   Delete
                 </button>
               </td>
             </tr>
           </tbody>
         </table>
+        <div class="clearfix btn-group col-md-2 offset-md-5">
+          <button type="button" class="text-dark btn btn-sm btn-outline-secondary" v-if="page != 1" @click="page--">
+            << </button>
+              <button type="button" class="text-dark btn btn-sm btn-outline-secondary"
+                v-for="pageNumber in pages.slice(page - 1, page + 5)" @click="page = pageNumber"> {{ pageNumber }}
+              </button>
+              <button type="button" class="text-dark btn btn-sm btn-outline-secondary" @click="page++"
+                v-if="page < pages.length"> >>
+              </button>
+        </div>
       </card>
     </div>
 
     <!-- Modal Add -->
-    <div
-      v-if="modals.add"
-      class="modal fade show d-block"
-      style="background-color: rgba(0, 0, 0, 0.5); z-index: 1050"
-    >
+    <div v-if="modals.add" class="modal fade show d-block" style="background-color: rgba(0, 0, 0, 0.5); z-index: 1050">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -71,68 +64,24 @@
           <div class="modal-body">
             <form>
               <div class="form-group">
-                <label
-                  for="title"
-                  class="form-label"
-                  style="font-weight: bold; font-size: large"
-                  >Title</label
-                >
-                <input
-                  type="text"
-                  v-model="form.title"
-                  class="form-control border"
-                  name="title"
-                  placeholder="Add a title"
-                  required
-                />
+                <label for="title" class="form-label" style="font-weight: bold; font-size: large">Title</label>
+                <input type="text" v-model="form.title" class="form-control border" name="title"
+                  placeholder="Add a title" required />
               </div>
               <div class="form-group">
-                <label
-                  for="author"
-                  class="form-label"
-                  style="font-weight: bold; font-size: large"
-                  >Author</label
-                >
-                <input
-                  type="text"
-                  v-model="form.author"
-                  class="form-control border"
-                  name="author"
-                  placeholder="Add a author"
-                  required
-                />
+                <label for="author" class="form-label" style="font-weight: bold; font-size: large">Author</label>
+                <input type="text" v-model="form.author" class="form-control border" name="author"
+                  placeholder="Add a author" required />
               </div>
               <div class="form-group">
-                <label
-                  for="content"
-                  class="form-label"
-                  style="font-weight: bold; font-size: large"
-                  >Content</label
-                >
-                <textarea
-                  type=""
-                  v-model="form.content"
-                  class="form-control border"
-                  name="content"
-                  placeholder="Add a content"
-                  required
-                ></textarea>
+                <label for="content" class="form-label" style="font-weight: bold; font-size: large">Content</label>
+                <textarea type="" v-model="form.content" class="form-control border" name="content"
+                  placeholder="Add a content" required></textarea>
               </div>
               <div class="form-group">
-                <label
-                  for="thumbnail"
-                  class="form-label"
-                  style="font-weight: bold; font-size: large"
-                  >Thumbnail</label
-                >
-                <input
-                  type="url"
-                  v-model="form.thumbnail"
-                  class="form-control border"
-                  name="thumbnail"
-                  placeholder="Add a thumbnail url"
-                  required
-                />
+                <label for="thumbnail" class="form-label" style="font-weight: bold; font-size: large">Thumbnail</label>
+                <input type="url" v-model="form.thumbnail" class="form-control border" name="thumbnail"
+                  placeholder="Add a thumbnail url" required />
               </div>
             </form>
           </div>
@@ -147,11 +96,7 @@
     </div>
 
     <!-- Modal Edit -->
-    <div
-      v-if="modals.edit"
-      class="modal fade show d-block"
-      style="background-color: rgba(0, 0, 0, 0.5); z-index: 1050"
-    >
+    <div v-if="modals.edit" class="modal fade show d-block" style="background-color: rgba(0, 0, 0, 0.5); z-index: 1050">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -160,68 +105,24 @@
           <div class="modal-body">
             <form>
               <div class="form-group">
-                <label
-                  for="title"
-                  class="form-label"
-                  style="font-weight: bold; font-size: large"
-                  >Title</label
-                >
-                <input
-                  type="text"
-                  v-model="form.title"
-                  class="form-control border"
-                  name="title"
-                  placeholder="Update a title"
-                  required
-                />
+                <label for="title" class="form-label" style="font-weight: bold; font-size: large">Title</label>
+                <input type="text" v-model="form.title" class="form-control border" name="title"
+                  placeholder="Update a title" required />
               </div>
               <div class="form-group">
-                <label
-                  for="author"
-                  class="form-label"
-                  style="font-weight: bold; font-size: large"
-                  >Author</label
-                >
-                <input
-                  type="text"
-                  v-model="form.author"
-                  class="form-control border"
-                  name="author"
-                  placeholder="Update a author"
-                  required
-                />
+                <label for="author" class="form-label" style="font-weight: bold; font-size: large">Author</label>
+                <input type="text" v-model="form.author" class="form-control border" name="author"
+                  placeholder="Update a author" required />
               </div>
               <div class="form-group">
-                <label
-                  for="content"
-                  class="form-label"
-                  style="font-weight: bold; font-size: large"
-                  >Content</label
-                >
-                <textarea
-                  type=""
-                  v-model="form.content"
-                  class="form-control border"
-                  name="content"
-                  placeholder="Update a content"
-                  required
-                ></textarea>
+                <label for="content" class="form-label" style="font-weight: bold; font-size: large">Content</label>
+                <textarea type="" v-model="form.content" class="form-control border" name="content"
+                  placeholder="Update a content" required></textarea>
               </div>
               <div class="form-group">
-                <label
-                  for="thumbnail"
-                  class="form-label"
-                  style="font-weight: bold; font-size: large"
-                  >Thumbnail</label
-                >
-                <input
-                  type="url"
-                  v-model="form.thumbnail"
-                  class="form-control border"
-                  name="thumbnail"
-                  placeholder="Update a thumbnail url"
-                  required
-                />
+                <label for="thumbnail" class="form-label" style="font-weight: bold; font-size: large">Thumbnail</label>
+                <input type="url" v-model="form.thumbnail" class="form-control border" name="thumbnail"
+                  placeholder="Update a thumbnail url" required />
               </div>
             </form>
           </div>
@@ -236,11 +137,8 @@
     </div>
 
     <!-- Modal Delete -->
-    <div
-      v-if="modals.delete"
-      class="modal fade show d-block"
-      style="background-color: rgba(0, 0, 0, 0.5); z-index: 1050"
-    >
+    <div v-if="modals.delete" class="modal fade show d-block"
+      style="background-color: rgba(0, 0, 0, 0.5); z-index: 1050">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -269,6 +167,9 @@ export default {
     return {
       article_id: "",
       articles: [],
+      page: 1,
+      perPage: 10,
+      pages: [],
       form: {
         title: "",
         author: "",
@@ -285,11 +186,21 @@ export default {
       },
     };
   },
+  watch: {
+    articles() {
+      this.setPages();
+    }
+  },
+  computed: {
+    displayedArticles() {
+      return this.paginate(this.articles);
+    }
+  },
   methods: {
     async getArticles() {
       try {
         const response = await axios.get("http://localhost:8000/articles");
-        this.articles = response.data;
+        this.articles = response.data.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
       } catch (e) {
         this.errors.push(e);
         console.error(e);
@@ -308,6 +219,19 @@ export default {
     shortenText(text, maxLength = 20) {
       if (!text) return "";
       return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+    },
+    setPages() {
+      let numberOfPages = Math.ceil(this.articles.length / this.perPage);
+      for (let index = 1; index <= numberOfPages; index++) {
+        this.pages.push(index);
+      }
+    },
+    paginate(articles) {
+      let page = this.page;
+      let perPage = this.perPage;
+      let from = (page * perPage) - perPage;
+      let to = (page * perPage);
+      return articles.slice(from, to);
     },
     openAddModal() {
       this.modals.add = true
@@ -349,10 +273,10 @@ export default {
     },
     resetForm() {
       this.form.title = '',
-      this.form.author = '',
-      this.form.post_date = '',
-      this.form.content = '',
-      this.form.thumbnail = ''
+        this.form.author = '',
+        this.form.post_date = '',
+        this.form.content = '',
+        this.form.thumbnail = ''
     },
     async addArticle() {
       try {
@@ -364,7 +288,7 @@ export default {
           thumbnail: this.form.thumbnail
         });
         const data = response.data
-        
+
         alert(data.message)
         this.getArticles()
       } catch (e) {
@@ -382,7 +306,7 @@ export default {
           thumbnail: this.form.thumbnail
         });
         const data = response.data
-        
+
         console.log(data)
         alert(data.message)
         this.getArticles()

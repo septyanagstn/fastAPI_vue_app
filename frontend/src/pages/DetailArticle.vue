@@ -13,7 +13,7 @@
             </div>
             <!-- Content -->
             <div>
-                <p class="text-justify">{{ article.content }}</p>
+                <p v-for="content in splittedContent" class="text-justify">{{ content }}</p>
             </div>
         </div>`
     </div>
@@ -21,29 +21,34 @@
 <script>
 import axios from 'axios';
 
-export default{
+export default {
     name: "ArticleDetail",
     data() {
         return {
             article_id: this.$route.params.id,
             article: [],
+            // content: [],
             errors: []
+        }
+    },
+    computed: {
+        splittedContent() {
+            return (this.article.content || "").split("|");
         }
     },
     methods: {
         async getArticleDetail() {
-        try {
-            const response = await axios.get(`http://localhost:8000/articles/detail/${this.article_id}`);
-            this.article = response.data;
-            console.log(this.article.content);
-        } catch (e) {
-            this.errors.push(e);
-            console.error(e);
-        }
+            try {
+                const response = await axios.get(`http://localhost:8000/articles/detail/${this.article_id}`);
+                this.article = response.data;
+            } catch (e) {
+                this.errors.push(e);
+                console.error(e);
+            }
         },
         formatDate(dateStr) {
-        const options = { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" };
-        return new Date(dateStr).toLocaleDateString("id-ID", options);
+            const options = { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" };
+            return new Date(dateStr).toLocaleDateString("id-ID", options);
         },
     },
     mounted() {

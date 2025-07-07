@@ -6,6 +6,7 @@ import NotFound from "@/pages/NotFoundPage.vue";
 import Dashboard from "@/pages/Dashboard.vue";
 import DetailArticle from "@/pages/DetailArticle.vue";
 import UserProfile from "@/pages/UserProfile.vue";
+import UserManagement from "@/pages/UserManagement.vue";
 import Notifications from "@/pages/Notifications.vue";
 import Icons from "@/pages/Icons.vue";
 import Maps from "@/pages/Maps.vue";
@@ -95,9 +96,14 @@ const routes = [
         component: DetailArticle,
       },
       {
-        path: "stats",
-        name: "stats",
+        path: "user-profile",
+        name: "user profile",
         component: UserProfile,
+      },
+      {
+        path: "user-management",
+        name: "user management",
+        component: UserManagement,
       },
       {
         path: "notifications",
@@ -120,10 +126,11 @@ const routes = [
         component: Typography,
       },
       {
-        path: "table-list",
-        name: "table-list",
+        path: "manage-articles",
+        name: "kelola berita",
         component: TableList,
       },
+
     ]
   },
   {
