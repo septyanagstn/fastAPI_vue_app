@@ -7,7 +7,7 @@
       style="height: 150px;"
     >
       <router-link
-        :to="{ name: 'article-detail', params: { id: article._id }}"
+        :to="{ name: 'article detail', params: { id: article._id }}"
         class="d-flex w-100 text-decoration-none text-dark"
       >
         <!-- Gambar -->
