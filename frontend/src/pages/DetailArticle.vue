@@ -1,19 +1,19 @@
 <template>
-    <div>
+    <div class="col-md-10 mx-auto d-block">
         <!-- Title -->
-        <h1></h1>
+        <h1 class="text-center"><strong>{{ article.title }}</strong></h1>
         <!-- Post Date -->
-        <p></p>
+        <p>Kompas.com - {{ formatDate(article.post_date) }}</p>
         <!-- Author -->
-        <p></p>
-        <div>
+        <h6>Tim Redaksi - {{ article.author }}</h6>
+        <div class="mt-4">
             <!-- Thumbnail -->
-            <div>
-
+            <div class="mb-3">
+                <img :src="article.thumbnail" alt="thumbnail" class="img-thumbnail">
             </div>
             <!-- Content -->
             <div>
-
+                <p class="text-justify">{{ article.content }}</p>
             </div>
         </div>`
     </div>
@@ -35,14 +35,14 @@ export default{
         try {
             const response = await axios.get(`http://localhost:8000/articles/detail/${this.article_id}`);
             this.article = response.data;
-            console.log(response.data)
+            console.log(this.article.content);
         } catch (e) {
             this.errors.push(e);
             console.error(e);
         }
         },
         formatDate(dateStr) {
-        const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+        const options = { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" };
         return new Date(dateStr).toLocaleDateString("id-ID", options);
         },
     },

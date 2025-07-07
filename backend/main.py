@@ -133,10 +133,10 @@ async def get_article_by_id(article_id: str):
 # Create a new article
 @app.post("/articles/")
 async def create_article(article: Article = Body(...)):
-    new_article = await database["test"].insert_one(
+    new_article = await database["kompas"].insert_one(
         article.model_dump(by_alias=True, exclude=["id"])
     )
-    created_article = await database["test"].find_one(
+    created_article = await database["kompas"].find_one(
         {"_id": new_article.inserted_id}
     )
     if created_article:
@@ -151,7 +151,7 @@ async def update_article_by_id(article_id: str, article: Article = Body(...)):
     }
 
     if len(article) >= 1:
-        update_result = await database["test"].find_one_and_update(
+        update_result = await database["kompas"].find_one_and_update(
             {"_id": ObjectId(article_id)},
             {"$set": article}
         )
@@ -165,7 +165,7 @@ async def update_article_by_id(article_id: str, article: Article = Body(...)):
 # Delete article by ID
 @app.delete("/articles/{article_id}")
 async def delete_article(article_id: str):
-    delete_result = await database["test"].delete_one({"_id": ObjectId(article_id)})
+    delete_result = await database["kompas"].delete_one({"_id": ObjectId(article_id)})
     if delete_result.deleted_count == 1:
         return {"message": "Article deleted successfully", "article_id": article_id}
     return {"error": "Article not found"}

@@ -11,7 +11,7 @@
         class="d-flex w-100 text-decoration-none text-dark"
       >
         <!-- Gambar -->
-        <div style="width: 150px; flex-shrink: 0;">
+        <div class="w-20">
           <img
             :src="article.thumbnail"
             alt="thumbnail"
