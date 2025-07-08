@@ -2,6 +2,12 @@
 
 Eksplorasi web application menggunakan FastAPI sebagai Backend dan Vue.js sebagai Frontend...
 
+## Screenshots
+
+![Screenshot 1](/assets/login.png) | ![Screenshot 2](/assets/register.png) | ![Screenshot 3](/assets/dasbor.png) |
+|------------------------------------------|------------------------------------------|------------------------------------------|
+| ![Screenshot 4](/assets/detail.png) | ![Screenshot 5](/assets/list-article.png) | ![Screenshot 6](/assets/list-user.png) |
+
 ## Tech Stack
 
 **Backend:** Python, FastAPI
@@ -85,11 +91,6 @@ Start the server
 ```bash
   npm run dev
 ```
-## Screenshots
-
-![Screenshot 1](/assets/login.png) | ![Screenshot 2](/assets/register.png) | ![Screenshot 3](/assets/dasbor.png) |
-|------------------------------------------|------------------------------------------|------------------------------------------|
-| ![Screenshot 4](/assets/detail.png) | ![Screenshot 5](/assets/list-article.png) | ![Screenshot 6](/assets/list-user.png) |
 
 ## Authors
 
