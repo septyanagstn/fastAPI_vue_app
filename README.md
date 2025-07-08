@@ -85,6 +85,14 @@ Start the server
 ```bash
   npm run dev
 ```
+## Screenshots
+
+![App Screenshot](/assets/login.png)
+![App Screenshot](/assets/register.png)
+![App Screenshot](/assets/dasbor.png)
+![App Screenshot](/assets/detail.png)
+![App Screenshot](/assets/list-article.png)
+![App Screenshot](/assets/list-user.png)
 
 ## Authors
 
