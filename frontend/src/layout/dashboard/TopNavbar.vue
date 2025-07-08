@@ -34,9 +34,14 @@
               <p>Settings</p>
             </a> -->
           <drop-down class="nav-item" title="Setting" title-classes="nav-link" icon="ti-settings">
-            <!-- <sidebar-link to="/warta/user-profile" name="Profile" icon="ti-user" /> -->
-            <a class="dropdown-item" href="/warta/user-profile"><span class="ti-user"></span> Profile</a>
-            <a class="dropdown-item" href="#"><span class="ti-power-off"></span> Log Out</a>
+            <router-link class="dropdown-item" :to="'/warta/user-profile'" tag="a">
+              <span class="ti-user me-2"></span> Profile
+            </router-link>
+            <a class="dropdown-item" href="#" @click.prevent="logout">
+              <span class="ti-power-off me-2"></span> Log Out
+            </a>
+            <!-- <a class="dropdown-item" href="/warta/user-profile"><span class="ti-user"></span> Profile</a> -->
+            <!-- <a class="dropdown-item" href="#"><span class="ti-power-off"></span> Log Out</a> -->
           </drop-down>
           <!-- </li> -->
         </ul>
@@ -72,6 +77,14 @@ export default {
     },
     hideSidebar() {
       this.$sidebar.displaySidebar(false);
+    },
+    logout() {
+      localStorage.removeItem("user");
+      localStorage.removeItem("access_token");
+
+      this.$router.push("/login");
+
+      alert("Logout berhasil!");
     },
   },
 };

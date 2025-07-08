@@ -47,7 +47,10 @@ export default {
         togglePassword() {
             this.showPassword = !this.showPassword;
         },
-
+        resetForm() {
+            this.email = '',
+            this.password = ''
+        }, 
         async login() {
             try {
                 const response = await axios.post('http://localhost:8000/login', {
@@ -57,9 +60,19 @@ export default {
 
                 const data = response.data;
 
+                // console.log(data.access_token)
+
+                // Simpan token dan user info
+                localStorage.setItem("access_token", data.access_token);
                 localStorage.setItem("user", JSON.stringify(data.user));
 
-                this.$router.push("/warta");
+                // Arahkan ke dashboard
+                try {
+                    this.$router.push("/warta/dashboard")
+                    this.resetForm()
+                } catch (error) {
+                    console.error("Redirect error:", error);
+                }
 
                 alert("Login berhasil. Selamat datang, " + data.user.username);
             } catch (error) {
@@ -70,6 +83,7 @@ export default {
                 }
             }
         }
+
     }
 }
 </script>

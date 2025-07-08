@@ -1,7 +1,15 @@
 <template>
   <div class="row">
     <div class="col-12">
-      <card title="Kelola Berita" subTitle="Lorem ipsum dolor sit amet">
+      <card>
+        <div class="mb-4 d-flex justify-content-between align-items-center">
+          <div>
+            <h4 class="card-title mb-0">Kelola Berita</h4>
+            <p class="card-category mb-0 text-muted">Temukan berita terbaru</p>
+          </div>
+          <input type="text" class="col-6 form-control border rounded" v-model="query" name="search"
+            placeholder="Search..." />
+        </div>
         <div class="mb-2 d-flex justify-content-end">
           <button type="button" name="add" class="btn btn-success btn-xs" @click="openAddModal()">
             Add Berita <span class="ti-plus"></span>
@@ -22,7 +30,7 @@
           </thead>
           <tbody>
             <tr v-for="(article, index) in displayedArticles" :key="index">
-              <td>{{ index + 1 }}</td>
+              <td>{{ article.index }}</td>
               <td>{{ shortenText(article.title) }}</td>
               <td>{{ article.author }}</td>
               <td>{{ formatDate(article.post_date) }}</td>
@@ -184,11 +192,16 @@ export default {
         edit: false,
         delete: false,
       },
+      query: ''
     };
   },
   watch: {
     articles() {
       this.setPages();
+    },
+    query: {
+      handler: 'getFilteredArticles',
+      immediate: false
     }
   },
   computed: {
@@ -200,7 +213,23 @@ export default {
     async getArticles() {
       try {
         const response = await axios.get("http://localhost:8000/articles");
-        this.articles = response.data.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
+        this.articles = response.data.sort((a, b) => new Date(b.post_date) - new Date(a.post_date)).map((article, idx) => ({ ...article, index: idx + 1 }));;
+      } catch (e) {
+        this.errors.push(e);
+        console.error(e);
+      }
+    },
+    async getFilteredArticles() {
+      if (this.query.trim() === '') {
+        return this.getArticles();
+      }
+      try {
+        const response = await axios.get(`http://localhost:8000/articles/search/${this.query}`);
+        const sorted = response.data.sort((a, b) => new Date(b.post_date) - new Date(a.post_date)).map((article, idx) => ({ ...article, index: idx + 1 }));;
+        this.articles = sorted;
+        this.page = 1;
+        this.pages = [];
+        this.setPages();
       } catch (e) {
         this.errors.push(e);
         console.error(e);

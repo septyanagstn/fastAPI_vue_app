@@ -1,18 +1,18 @@
+from datetime import datetime, timedelta, timezone
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.params import Body
+from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordBearer
 from database import database  
 from bson import ObjectId
 from passlib.context import CryptContext
 from models import User, LoginUser, Token, Article  
+import os
+from dotenv import load_dotenv
+import jwt
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-Oauth2_schema = OAuth2PasswordBearer(tokenUrl="token")
-
-# SECRET_KEY = "rahasia-super-aman"
-# ALGORITHM = "HS256"
-# ACCESS_TOKEN_EXPIRE_MINUTES = 60
+load_dotenv()
 
 app = FastAPI()
 
@@ -24,18 +24,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Oauth2_schema = OAuth2PasswordBearer(tokenUrl="token")
+
+
 @app.get("/")
 async def root():
     return {"message": "INI UJI COBA SAJA"}
 
-# def create_access_token(data: dict, expires_delta: timedelta = None):
-#     to_encode = data.copy()
-#     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
-#     to_encode.update({"exp": expire})
-#     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-#     return encoded_jwt
+def create_access_token(data: dict, expires_delta: timedelta = None):
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    to_encode.update({"exp": int(expire.timestamp())})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
 
-# Register
+# Register  
 @app.post("/register/")
 async def register(user: User = Body(...)):
     existing_user = await database["users"].find_one({"username": user.username})
@@ -54,35 +61,10 @@ async def register(user: User = Body(...)):
     })
     return {"message": "User registered successfully", "user_id": str(new_user.inserted_id)}
 
-# Login
-# @app.post("/login/", response_model=Token)
-# async def login(user: LoginUser = Body(...)):
-#     # Cari user di DB
-#     user_data = await database["users"].find_one({"username": user.username})
-#     if not user_data:
-#         raise HTTPException(status_code=404, detail="User not found")
-
-#     # Verifikasi password
-#     if not pwd_context.verify(user.password, user_data["password"]):
-#         raise HTTPException(status_code=401, detail="Incorrect password")
-
-#     # Buat token
-#     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-#     access_token = create_access_token(
-#         data={"sub": user_data["username"]},  # subject = username
-#         expires_delta=access_token_expires
-#     )
-
-#     return {"access_token": access_token, "token_type": "bearer"}
-
 @app.post("/login/")
 async def login(user: LoginUser = Body(...)):
-    # Cek user berdasarkan email atau username
     user_data = await database["users"].find_one({
-        "$or": [
-            {"email": user.email},
-            {"password": pwd_context.hash(user.password)}
-        ]
+        "email": user.email
     })
 
     if not user_data:
@@ -91,15 +73,21 @@ async def login(user: LoginUser = Body(...)):
             detail="User not found"
         )
 
-    # Verifikasi password
     if not pwd_context.verify(user.password, user_data["password"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect password"
         )
 
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user_data["username"]},
+        expires_delta=access_token_expires
+    )
+
     return {
-        "message": "Login successful",
+        "access_token": access_token,
+        "token_type": "bearer",
         "user": {
             "id": str(user_data["_id"]),
             "username": user_data["username"],
@@ -107,6 +95,46 @@ async def login(user: LoginUser = Body(...)):
             "full_name": user_data["full_name"]
         }
     }
+
+@app.post("/logout/")
+async def logout():
+    return JSONResponse(
+        status_code=200,
+        content={"message": "Logout successful"}
+    )
+
+# @app.post("/login/")
+# async def login(user: LoginUser = Body(...)):
+#     # Cek user berdasarkan email atau username
+#     user_data = await database["users"].find_one({
+#         "$or": [
+#             {"email": user.email},
+#             {"password": pwd_context.hash(user.password)}
+#         ]
+#     })
+
+#     if not user_data:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND,
+#             detail="User not found"
+#         )
+
+#     # Verifikasi password
+#     if not pwd_context.verify(user.password, user_data["password"]):
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="Incorrect password"
+#         )
+
+#     return {
+#         "message": "Login successful",
+#         "user": {
+#             "id": str(user_data["_id"]),
+#             "username": user_data["username"],
+#             "email": user_data["email"],
+#             "full_name": user_data["full_name"]
+#         }
+#     }
     
 # Get all articles
 @app.get("/articles/")

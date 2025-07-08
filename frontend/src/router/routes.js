@@ -11,60 +11,11 @@ import Notifications from "@/pages/Notifications.vue";
 import Icons from "@/pages/Icons.vue";
 import Maps from "@/pages/Maps.vue";
 import Typography from "@/pages/Typography.vue";
-import TableList from "@/pages/TableList.vue";
+import ArticleManagement from "@/pages/ArticleManagement.vue";
 
 import Login from "@/pages/Authentication/Login.vue"
 import Register from "@/pages/Authentication/Register.vue"
-// import { component } from "vue/types/umd.js";
 
-// const routes = [
-  // {
-  //   path: "/",
-  //   // component: DashboardLayout,
-  //   redirect: "/login",
-  //   children: [
-  //     {
-  //       path: "login",
-  //       name: "login",
-  //       component: Login,
-  //     },
-  //     {
-  //       path: "dashboard",
-  //       name: "dashboard",
-  //       component: Dashboard,
-  //     },
-  //     {
-  //       path: "stats",
-  //       name: "stats",
-  //       component: UserProfile,
-  //     },
-  //     {
-  //       path: "notifications",
-  //       name: "notifications",
-  //       component: Notifications,
-  //     },
-  //     {
-  //       path: "icons",
-  //       name: "icons",
-  //       component: Icons,
-  //     },
-  //     {
-  //       path: "maps",
-  //       name: "maps",
-  //       component: Maps,
-  //     },
-  //     {
-  //       path: "typography",
-  //       name: "typography",
-  //       component: Typography,
-  //     },
-  //     {
-  //       path: "table-list",
-  //       name: "table-list",
-  //       component: TableList,
-  //     },
-  //   ],
-  // },
 const routes = [
   {
     path: "/",
@@ -84,6 +35,7 @@ const routes = [
     path: "/warta",
     component: DashboardLayout,
     redirect: "/warta/dashboard",
+    meta: { requiresAuth: true },
     children: [
       {
         path: "dashboard",
@@ -128,7 +80,7 @@ const routes = [
       {
         path: "manage-articles",
         name: "kelola berita",
-        component: TableList,
+        component: ArticleManagement,
       },
 
     ]

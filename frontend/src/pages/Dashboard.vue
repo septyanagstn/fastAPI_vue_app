@@ -1,9 +1,13 @@
 <template>
-  <card title="Daftar Berita">
-    <!-- <div>
-      <input type="text" class="rounded form-control border" name="search" placeholder="Search..." />
-      <i class="ti-search"></i>
-    </div> -->
+  <card>
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+      <div>
+        <h4 class="card-title mb-0">Daftar Berita</h4>
+        <p class="card-category mb-0 text-muted">Temukan berita terbaru</p>
+      </div>
+      <input type="text" class="col-6 form-control border rounded" v-model="query" name="search"
+        placeholder="Search..." />
+    </div>
     <div v-for="(article, index) in displayedArticles" :key="index"
       class="d-flex bg-light text-dark rounded overflow-hidden mb-3 shadow" style="height: 150px;">
       <router-link :to="{ name: 'article detail', params: { id: article._id } }"
@@ -46,13 +50,24 @@ export default {
       page: 1,
       perPage: 10,
       pages: [],
+      query: ''
     };
   },
   watch: {
     articles() {
       this.setPages();
+    },
+    query: {
+      handler: 'getFilteredArticles',
+      immediate: false
     }
   },
+  // watch: {
+  //   query: {
+  //     handler: 'getFilteredArticles',
+  //     debounce: 200
+  //   }
+  // },
   computed: {
     displayedArticles() {
       return this.paginate(this.articles);
@@ -63,7 +78,23 @@ export default {
       try {
         const response = await axios.get("http://localhost:8000/articles");
         this.articles = response.data.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
-        console.log(response.data)
+        // console.log(response.data)
+      } catch (e) {
+        this.errors.push(e);
+        console.error(e);
+      }
+    },
+    async getFilteredArticles() {
+      if (this.query.trim() === '') {
+        return this.getArticles();
+      }
+      try {
+        const response = await axios.get(`http://localhost:8000/articles/search/${this.query}`);
+        const sorted = response.data.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
+        this.articles = sorted;
+        this.page = 1;
+        this.pages = [];
+        this.setPages();
       } catch (e) {
         this.errors.push(e);
         console.error(e);
