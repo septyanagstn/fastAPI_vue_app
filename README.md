@@ -87,12 +87,9 @@ Start the server
 ```
 ## Screenshots
 
-![App Screenshot](/assets/login.png)
-![App Screenshot](/assets/register.png)
-![App Screenshot](/assets/dasbor.png)
-![App Screenshot](/assets/detail.png)
-![App Screenshot](/assets/list-article.png)
-![App Screenshot](/assets/list-user.png)
+![Screenshot 1](/assets/login.png) | ![Screenshot 2](/assets/register.png) | ![Screenshot 3](/assets/dasbor.png) |
+|------------------------------------------|------------------------------------------|------------------------------------------|
+| ![Screenshot 4](/assets/detail.png) | ![Screenshot 5](/assets/list-article.png) | ![Screenshot 6](/assets/list-user.png) |
 
 ## Authors
 
