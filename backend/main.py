@@ -138,36 +138,18 @@ async def get_user_by_id(user_id: str):
         user["_id"] = str(user["_id"])
         return user
     return {"error": "User not found"}
-    
-# Get all articles
-@app.get("/articles/")
-async def get_all_articles():
-    articles = await database["kompas"].find().to_list(length=None)
-    for article in articles:
-        article["_id"] = str(article["_id"])
-    return articles
 
-# Get detail article by ID
-@app.get("/articles/detail/{article_id}")
-async def get_article_by_id(article_id: str):
-    try:
-        obj_id = ObjectId(article_id)
-    except Exception:
-        return {"error": "Invalid article_id format"}
-    
-    article = await database["kompas"].find_one({"_id": obj_id})
-    if article:
-        article["_id"] = str(article["_id"])
-        return article
-    return {"error": "Article not found"}
-
-# Update article by ID
+# Update user by ID
 @app.put("/users/{user_id}")
 async def update_user_by_id(user_id: str, user: User = Body(...)):
     user = user.model_dump(by_alias=True)
 
+    existing_user = await database["users"].find_one({"_id": ObjectId(user_id)})
+    if not existing_user:
+        return {"error": "User not found"}
+    
     # Jika password tidak kosong, hash password
-    if user.get("password"):
+    if user.get("password") and user.get("password") != existing_user.get("password"): 
         user["password"] = pwd_context.hash(user["password"])
 
     # Hapus field kosong (None)
@@ -202,6 +184,28 @@ async def search_users(query: str):
         user["_id"] = str(user["_id"])
         users.append(user)
     return users
+
+# Get all articles
+@app.get("/articles/")
+async def get_all_articles():
+    articles = await database["kompas"].find().to_list(length=None)
+    for article in articles:
+        article["_id"] = str(article["_id"])
+    return articles
+
+# Get detail article by ID
+@app.get("/articles/detail/{article_id}")
+async def get_article_by_id(article_id: str):
+    try:
+        obj_id = ObjectId(article_id)
+    except Exception:
+        return {"error": "Invalid article_id format"}
+    
+    article = await database["kompas"].find_one({"_id": obj_id})
+    if article:
+        article["_id"] = str(article["_id"])
+        return article
+    return {"error": "Article not found"}
 
 # Create a new article
 @app.post("/articles/")
