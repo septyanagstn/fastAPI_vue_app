@@ -14,12 +14,12 @@
           {{ user.username }}
           <br />
           <a href="#">
-            <small>@{{ user.username }}</small>
+            <small>{{ user.email }}</small>
           </a>
         </h4>
       </div>
       <p class="description text-center">
-        {{ user.email }}
+        {{ user.bio }}
       </p>
     </div>
     <hr />
@@ -47,13 +47,10 @@ export default {
     return {
       user: {
         username: "",
-        email: ""
-      },
-      details: [
-        { title: "12", subTitle: "Files" },
-        { title: "2GB", subTitle: "Used" },
-        { title: "24,6$", subTitle: "Spent" }
-      ]
+        email: "",
+        bio: "Lorem Ipsum Dolor Sit Amet",
+
+      }
     };
   },
   mounted() {

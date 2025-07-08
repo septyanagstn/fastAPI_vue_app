@@ -21,11 +21,11 @@ router.beforeEach((to, from, next) => {
   if (token) {
     try {
       const decoded = jwtDecode(token);
-      console.log("DECODED:", decoded);
+      // console.log("DECODED:", decoded);
       const now = Date.now() / 1000;
 
-      console.log(decoded.exp)
-      console.log(now)
+      // console.log(decoded.exp)
+      // console.log(now)
 
       if (decoded.exp && decoded.exp < now) {
         localStorage.removeItem("access_token");
@@ -42,8 +42,6 @@ router.beforeEach((to, from, next) => {
     }
   }
   
-
-  // Jika route butuh login tapi belum login
   if (to.matched.some(record => record.meta.requiresAuth) && !token) {
     return next("/login");
   }

@@ -35,6 +35,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 async def root():
     return {"message": "INI UJI COBA SAJA"}
 
+# Create access token with time expire
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
@@ -61,6 +62,7 @@ async def register(user: User = Body(...)):
     })
     return {"message": "User registered successfully", "user_id": str(new_user.inserted_id)}
 
+# Login and create new access token
 @app.post("/login/")
 async def login(user: LoginUser = Body(...)):
     user_data = await database["users"].find_one({
@@ -96,45 +98,46 @@ async def login(user: LoginUser = Body(...)):
         }
     }
 
-@app.post("/logout/")
-async def logout():
-    return JSONResponse(
-        status_code=200,
-        content={"message": "Logout successful"}
-    )
+# Get all Users
+@app.get("/users/")
+async def get_all_users():
+    users = await database["users"].find().to_list(length=None)
+    for user in users:
+        user["_id"] = str(user["_id"])
+    return users
 
-# @app.post("/login/")
-# async def login(user: LoginUser = Body(...)):
-#     # Cek user berdasarkan email atau username
-#     user_data = await database["users"].find_one({
-#         "$or": [
-#             {"email": user.email},
-#             {"password": pwd_context.hash(user.password)}
-#         ]
-#     })
+# Create User
+@app.post("/users/")
+async def create_user(user: User = Body(...)):
+    existing_user = await database["users"].find_one({"username": user.username})
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already exists"
+        )
 
-#     if not user_data:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND,
-#             detail="User not found"
-#         )
+    new_user = await database["users"].insert_one({
+        "username": user.username,
+        "email": user.email,
+        "full_name": user.full_name,
+        "password": pwd_context.hash(user.password),
+        "disabled": user.disabled
+    })
+    return {"message": "User created successfully", "user": new_user}
 
-#     # Verifikasi password
-#     if not pwd_context.verify(user.password, user_data["password"]):
-#         raise HTTPException(
-#             status_code=status.HTTP_401_UNAUTHORIZED,
-#             detail="Incorrect password"
-#         )
-
-#     return {
-#         "message": "Login successful",
-#         "user": {
-#             "id": str(user_data["_id"]),
-#             "username": user_data["username"],
-#             "email": user_data["email"],
-#             "full_name": user_data["full_name"]
-#         }
-#     }
+# get User by ID
+@app.get("/users/{user_id}")
+async def get_user_by_id(user_id: str):
+    try:
+        obj_id = ObjectId(user_id)
+    except Exception:
+        return {"error": "Invalid user_id format"}
+    
+    user = await database["users"].find_one({"_id": obj_id})
+    if user:
+        user["_id"] = str(user["_id"])
+        return user
+    return {"error": "User not found"}
     
 # Get all articles
 @app.get("/articles/")
@@ -157,6 +160,48 @@ async def get_article_by_id(article_id: str):
         article["_id"] = str(article["_id"])
         return article
     return {"error": "Article not found"}
+
+# Update article by ID
+@app.put("/users/{user_id}")
+async def update_user_by_id(user_id: str, user: User = Body(...)):
+    user = user.model_dump(by_alias=True)
+
+    # Jika password tidak kosong, hash password
+    if user.get("password"):
+        user["password"] = pwd_context.hash(user["password"])
+
+    # Hapus field kosong (None)
+    update_fields = {k: v for k, v in user.items() if v is not None}
+
+    if len(user) >= 1:
+        update_result = await database["users"].find_one_and_update(
+            {"_id": ObjectId(user_id)},
+            {"$set": update_fields}
+        )
+
+        if update_result is not None:
+            update_result["_id"] = str(update_result["_id"])
+            return {"message": "User updated successfully", "user": update_result}
+        return {"error": "User not found"}
+    return {"error": "No fields to update"}
+
+# Delete user by ID
+@app.delete("/users/{user_id}")
+async def delete_user(user_id: str):
+    delete_result = await database["users"].delete_one({"_id": ObjectId(user_id)})
+    if delete_result.deleted_count == 1:
+        return {"message": "User deleted successfully", "user_id": user_id}
+    return {"error": "User not found"}
+
+# Search users by username
+@app.get("/users/search/{query}")
+async def search_users(query: str):
+    users = []
+    found_users = await database["users"].find({"username": {"$regex": query, "$options": "i"}}).to_list(length=None)
+    for user in found_users:
+        user["_id"] = str(user["_id"])
+        users.append(user)
+    return users
 
 # Create a new article
 @app.post("/articles/")

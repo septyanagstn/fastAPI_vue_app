@@ -7,10 +7,6 @@ import Dashboard from "@/pages/Dashboard.vue";
 import DetailArticle from "@/pages/DetailArticle.vue";
 import UserProfile from "@/pages/UserProfile.vue";
 import UserManagement from "@/pages/UserManagement.vue";
-import Notifications from "@/pages/Notifications.vue";
-import Icons from "@/pages/Icons.vue";
-import Maps from "@/pages/Maps.vue";
-import Typography from "@/pages/Typography.vue";
 import ArticleManagement from "@/pages/ArticleManagement.vue";
 
 import Login from "@/pages/Authentication/Login.vue"
@@ -56,26 +52,6 @@ const routes = [
         path: "user-management",
         name: "user management",
         component: UserManagement,
-      },
-      {
-        path: "notifications",
-        name: "notifications",
-        component: Notifications,
-      },
-      {
-        path: "icons",
-        name: "icons",
-        component: Icons,
-      },
-      {
-        path: "maps",
-        name: "maps",
-        component: Maps,
-      },
-      {
-        path: "typography",
-        name: "typography",
-        component: Typography,
       },
       {
         path: "manage-articles",
