@@ -33,8 +33,7 @@
               <td>{{ shortenText(user.username) }}</td>
               <td>{{ user.email }}</td>
               <td>{{ shortenText(user.full_name) }}</td>
-              <td>
-                {{ shortenText(user.password) }}</td>
+              <td>{{ hideText(user.password) }}</td>
               <td>
                 <button type="button" class="btn btn-primary btn-xs" @click="openEditModal(user._id)">
                   Edit
@@ -281,6 +280,9 @@ export default {
     shortenText(text, maxLength = 20) {
       if (!text) return "";
       return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+    },
+    hideText(text) {
+      if (text) return "...";
     },
     setPages() {
       let numberOfPages = Math.ceil(this.users.length / this.perPage);

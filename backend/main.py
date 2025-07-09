@@ -112,12 +112,6 @@ async def get_users(skip: int = Query(0), limit: int = Query(10)):
         "items": users,
         "total": total_users
     }
-# @app.get("/users/")
-# async def get_all_users():
-#     users = await database["users"].find().to_list(length=None)
-#     for user in users:
-#         user["_id"] = str(user["_id"])
-#     return users
 
 # Create User
 @app.post("/users/")
@@ -190,13 +184,19 @@ async def delete_user(user_id: str):
 
 # Search users by username
 @app.get("/users/search/{query}")
-async def search_users(query: str):
-    users = []
-    found_users = await database["users"].find({"username": {"$regex": query, "$options": "i"}}).to_list(length=None)
+async def search_users(query: str, skip: int = 0, limit: int = 10):
+    filter_query = {"username": {"$regex": query, "$options": "i"}}
+
+    total_users = await database["users"].count_documents(filter_query)
+    found_users = await database["users"].find(filter_query).sort("post_date", -1).skip(skip).limit(limit).to_list(length=limit)
+
     for user in found_users:
         user["_id"] = str(user["_id"])
-        users.append(user)
-    return users
+
+    return {
+        "items": found_users,
+        "total": total_users
+    }
 
 # Get all articles
 @app.get("/articles/")
@@ -211,12 +211,6 @@ async def get_articles(skip: int = Query(0), limit: int = Query(10)):
         "items": articles,
         "total": total_articles
     }
-# @app.get("/articles/")
-# async def get_all_articles():
-#     articles = await database["kompas"].find().to_list(length=None)
-#     for article in articles:
-#         article["_id"] = str(article["_id"])
-#     return articles
 
 # Get detail article by ID
 @app.get("/articles/detail/{article_id}")
@@ -287,12 +281,3 @@ async def search_articles(query: str, skip: int = 0, limit: int = 10):
         "items": found_articles,
         "total": total_articles
     }
-
-# @app.get("/articles/search/{query}")
-# async def search_articles(query: str):
-#     articles = []
-#     found_articles = await database["kompas"].find({"title": {"$regex": query, "$options": "i"}}).to_list(length=None)
-#     for article in found_articles:
-#         article["_id"] = str(article["_id"])
-#         articles.append(article)
-#     return articles
