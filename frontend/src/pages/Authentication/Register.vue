@@ -95,12 +95,10 @@ export default {
                 this.$router.push("/");
                 
                 const data = response.data
-                console.log(data)
 
                 alert("Selamat akun berhasil didaftarkan. Silahkan login")
             } catch (error) {
                 if (error.response) {
-                    console.log(error.response.data.detail)
                     alert("SignUp gagal: " + error.response.data.detail);
                 } else {
                     alert("Terjadi kesalahan: " + error.message);

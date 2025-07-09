@@ -211,7 +211,6 @@ export default {
       try {
         const response = await axios.get("http://localhost:8000/users");
         this.users = response.data.sort((a, b) => a.username - b.username).map((user, idx) => ({ ...user, index: idx + 1 }));;
-        console.log(this.users)
       } catch (e) {
         this.errors.push(e);
         console.error(e);
@@ -267,8 +266,6 @@ export default {
       try {
         const response = await axios.get(`http://localhost:8000/users/${id}`)
         const data = response.data
-
-        console.log(data)
 
         this.form.username = data.username
         this.form.email = data.email
@@ -330,7 +327,6 @@ export default {
         });
         const data = response.data
 
-        console.log(data)
         alert(data.message)
         this.getUsers()
       } catch (e) {

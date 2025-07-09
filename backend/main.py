@@ -2,12 +2,12 @@ from datetime import datetime, timedelta, timezone
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.params import Body
-from fastapi.responses import JSONResponse
-from fastapi.security import OAuth2PasswordBearer
+# from fastapi.responses import JSONResponse
+# from fastapi.security import OAuth2PasswordBearer
 from database import database  
 from bson import ObjectId
 from passlib.context import CryptContext
-from models import User, LoginUser, Token, Article  
+from models import User, LoginUser, Article  
 import os
 from dotenv import load_dotenv
 import jwt

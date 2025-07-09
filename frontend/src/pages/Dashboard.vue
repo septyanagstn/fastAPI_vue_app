@@ -78,7 +78,6 @@ export default {
       try {
         const response = await axios.get("http://localhost:8000/articles");
         this.articles = response.data.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
-        // console.log(response.data)
       } catch (e) {
         this.errors.push(e);
         console.error(e);

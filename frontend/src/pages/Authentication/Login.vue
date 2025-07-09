@@ -60,13 +60,9 @@ export default {
 
                 const data = response.data;
 
-                // console.log(data.access_token)
-
-                // Simpan token dan user info
                 localStorage.setItem("access_token", data.access_token);
                 localStorage.setItem("user", JSON.stringify(data.user));
 
-                // Arahkan ke dashboard
                 try {
                     this.$router.push("/warta/dashboard")
                     this.resetForm()

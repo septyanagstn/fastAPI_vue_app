@@ -7,7 +7,7 @@ Vue.use(VueRouter);
 
 // configure router
 const router = new VueRouter({
-  routes, // short for routes: routes
+  routes,
   linkActiveClass: "active",
 });
 
@@ -15,17 +15,10 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem("access_token");
 
-  console.log(token);
-
-  // Jika ada token
   if (token) {
     try {
       const decoded = jwtDecode(token);
-      // console.log("DECODED:", decoded);
       const now = Date.now() / 1000;
-
-      // console.log(decoded.exp)
-      // console.log(now)
 
       if (decoded.exp && decoded.exp < now) {
         localStorage.removeItem("access_token");

@@ -270,8 +270,6 @@ export default {
         const response = await axios.get(`http://localhost:8000/articles/detail/${id}`)
         const data = response.data
 
-        console.log(id)
-
         this.form.title = data.title
         this.form.author = data.author
         this.form.post_date = data.post_date
@@ -335,8 +333,7 @@ export default {
           thumbnail: this.form.thumbnail
         });
         const data = response.data
-
-        console.log(data)
+        
         alert(data.message)
         this.getArticles()
       } catch (e) {
