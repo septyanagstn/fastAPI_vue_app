@@ -51,7 +51,7 @@
         </table>
         <div class="clearfix btn-group col-md-2 offset-md-5">
           <button type="button" class="text-dark btn btn-sm btn-outline-secondary" @click="changePage(page - 1)"
-            :disabled="page === 1"> &laquo; </button>
+            :disabled="page === 1"> <span class="ti-angle-double-left"></span> </button>
 
           <button v-for="n in paginatedPages" :key="n" class="text-dark btn btn-sm btn-outline-secondary"
             :class="{ 'active': page === n }" @click="changePage(n)">
@@ -59,7 +59,7 @@
           </button>
 
           <button type="button" class="text-dark btn btn-sm btn-outline-secondary" @click="changePage(page + 1)"
-            :disabled="page === totalPages"> &raquo; </button>
+            :disabled="page === totalPages"> <span class="ti-angle-double-right"></span> </button>
         </div>
       </card>
     </div>

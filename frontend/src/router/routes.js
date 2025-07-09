@@ -35,7 +35,7 @@ const routes = [
     children: [
       {
         path: "dashboard",
-        name: "dashboard",
+        name: "dasbor",
         component: Dashboard,
       },
       {
@@ -50,7 +50,7 @@ const routes = [
       },
       {
         path: "user-management",
-        name: "user management",
+        name: "kelola user",
         component: UserManagement,
       },
       {

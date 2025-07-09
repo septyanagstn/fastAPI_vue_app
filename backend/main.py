@@ -2,8 +2,6 @@ from datetime import datetime, timedelta, timezone
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.params import Body
-# from fastapi.responses import JSONResponse
-# from fastapi.security import OAuth2PasswordBearer
 from database import database  
 from bson import ObjectId
 from passlib.context import CryptContext
@@ -29,7 +27,6 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-# Oauth2_schema = OAuth2PasswordBearer(tokenUrl="token")
 
 
 @app.get("/")
