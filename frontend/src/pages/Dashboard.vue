@@ -8,7 +8,7 @@
       <input type="text" class="col-6 form-control border rounded" v-model="query" name="search"
         placeholder="Search..." />
     </div>
-    <div v-for="(article, index) in displayedArticles" :key="index"
+    <div v-for="(article, index) in articles" :key="index"
       class="d-flex bg-light text-dark rounded overflow-hidden mb-3 shadow" style="height: 150px;">
       <router-link :to="{ name: 'article detail', params: { id: article._id } }"
         class="d-flex w-100 text-decoration-none text-dark">
@@ -27,13 +27,16 @@
       </router-link>
     </div>
     <div class="clearfix btn-group col-md-2 offset-md-5">
-      <button type="button" class="text-dark btn btn-sm btn-outline-secondary" v-if="page != 1" @click="page--">
-        << </button>
-          <button type="button" class="text-dark btn btn-sm btn-outline-secondary"
-            v-for="pageNumber in pages.slice(page - 1, page + 5)" @click="page = pageNumber"> {{ pageNumber }} </button>
-          <button type="button" class="text-dark btn btn-sm btn-outline-secondary" @click="page++"
-            v-if="page < pages.length"> >>
-          </button>
+      <button type="button" class="text-dark btn btn-sm btn-outline-secondary" @click="changePage(page - 1)"
+        :disabled="page === 1"> &laquo; </button>
+
+      <button v-for="n in paginatedPages" :key="n" class="text-dark btn btn-sm btn-outline-secondary"
+        :class="{ 'active': page === n }" @click="changePage(n)">
+        {{ n }}
+      </button>
+
+      <button type="button" class="text-dark btn btn-sm btn-outline-secondary" @click="changePage(page + 1)"
+        :disabled="page === totalPages"> &raquo; </button>
     </div>
   </card>
 </template>
@@ -46,6 +49,7 @@ export default {
   data() {
     return {
       articles: [],
+      totalItems: 0,
       errors: [],
       page: 1,
       perPage: 10,
@@ -62,22 +66,38 @@ export default {
       immediate: false
     }
   },
-  // watch: {
-  //   query: {
-  //     handler: 'getFilteredArticles',
-  //     debounce: 200
-  //   }
-  // },
   computed: {
-    displayedArticles() {
-      return this.paginate(this.articles);
+    totalPages() {
+      return Math.ceil(this.totalItems / this.perPage);
+    },
+    paginatedPages() {
+      const total = this.totalPages;
+      const current = this.page;
+      const maxPagesToShow = 5;
+      let start = Math.max(1, current - Math.floor(maxPagesToShow / 2));
+      let end = start + maxPagesToShow - 1;
+
+      if (end > total) {
+        end = total;
+        start = Math.max(1, end - maxPagesToShow + 1);
+      }
+
+      const pages = [];
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+      return pages;
     }
   },
   methods: {
     async getArticles() {
+      const skip = (this.page - 1) * this.perPage;
       try {
-        const response = await axios.get("http://localhost:8000/articles");
-        this.articles = response.data.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
+        const response = await axios.get("http://localhost:8000/articles/", {
+          params: { skip, limit: this.perPage }
+        });
+        this.articles = response.data.items;
+        this.totalItems = response.data.total;
       } catch (e) {
         this.errors.push(e);
         console.error(e);
@@ -87,13 +107,15 @@ export default {
       if (this.query.trim() === '') {
         return this.getArticles();
       }
+
+      const skip = (this.page - 1) * this.perPage;
+
       try {
-        const response = await axios.get(`http://localhost:8000/articles/search/${this.query}`);
-        const sorted = response.data.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
-        this.articles = sorted;
-        this.page = 1;
-        this.pages = [];
-        this.setPages();
+        const response = await axios.get(`http://localhost:8000/articles/search/${this.query}`, {
+          params: { skip, limit: this.perPage }
+        });
+        this.articles = response.data.items;
+        this.totalItems = response.data.total;
       } catch (e) {
         this.errors.push(e);
         console.error(e);
@@ -109,13 +131,14 @@ export default {
         this.pages.push(index);
       }
     },
-    paginate(articles) {
-      let page = this.page;
-      let perPage = this.perPage;
-      let from = (page * perPage) - perPage;
-      let to = (page * perPage);
-      return articles.slice(from, to);
-    },
+    async changePage(newPage) {
+      this.page = newPage;
+      if (this.query.trim() === '') {
+        await this.getArticles();
+      } else {
+        await this.getFilteredArticles();
+      }
+    }
   },
   mounted() {
     this.getArticles();

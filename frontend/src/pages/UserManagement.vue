@@ -28,7 +28,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(user, index) in displayedUsers" :key="index">
+            <tr v-for="(user, index) in users" :key="index">
               <td>{{ user.index }}</td>
               <td>{{ shortenText(user.username) }}</td>
               <td>{{ user.email }}</td>
@@ -49,14 +49,16 @@
           </tbody>
         </table>
         <div class="clearfix btn-group col-md-2 offset-md-5">
-          <button type="button" class="text-dark btn btn-sm btn-outline-secondary" v-if="page != 1" @click="page--">
-            << </button>
-              <button type="button" class="text-dark btn btn-sm btn-outline-secondary"
-                v-for="pageNumber in pages.slice(page - 1, page + 5)" @click="page = pageNumber"> {{ pageNumber }}
-              </button>
-              <button type="button" class="text-dark btn btn-sm btn-outline-secondary" @click="page++"
-                v-if="page < pages.length"> >>
-              </button>
+          <button type="button" class="text-dark btn btn-sm btn-outline-secondary" @click="changePage(page - 1)"
+            :disabled="page === 1"> &laquo; </button>
+
+          <button v-for="n in paginatedPages" :key="n" class="text-dark btn btn-sm btn-outline-secondary"
+            :class="{ 'active': page === n }" @click="changePage(n)">
+            {{ n }}
+          </button>
+
+          <button type="button" class="text-dark btn btn-sm btn-outline-secondary" @click="changePage(page + 1)"
+            :disabled="page === totalPages"> &raquo; </button>
         </div>
       </card>
     </div>
@@ -174,6 +176,7 @@ export default {
     return {
       user_id: "",
       users: [],
+      totalItems: 0,
       page: 1,
       perPage: 10,
       pages: [],
@@ -202,15 +205,43 @@ export default {
     }
   },
   computed: {
-    displayedUsers() {
-      return this.paginate(this.users);
+    // displayedUsers() {
+    //   return this.paginate(this.users);
+    // }
+    totalPages() {
+      return Math.ceil(this.totalItems / this.perPage);
+    },
+    paginatedPages() {
+      const total = this.totalPages;
+      const current = this.page;
+      const maxPagesToShow = 5;
+      let start = Math.max(1, current - Math.floor(maxPagesToShow / 2));
+      let end = start + maxPagesToShow - 1;
+
+      if (end > total) {
+        end = total;
+        start = Math.max(1, end - maxPagesToShow + 1);
+      }
+
+      const pages = [];
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+      return pages;
     }
   },
   methods: {
     async getUsers() {
+      const skip = (this.page - 1) * this.perPage;
       try {
-        const response = await axios.get("http://localhost:8000/users");
-        this.users = response.data.sort((a, b) => a.username - b.username).map((user, idx) => ({ ...user, index: idx + 1 }));;
+        const response = await axios.get("http://localhost:8000/users/", {
+          params: { skip, limit: this.perPage }
+        });
+        this.users = response.data.items.map((user, idx) => ({
+          ...user,
+          index: (this.page - 1) * this.perPage + idx + 1
+        }));
+        this.totalItems = response.data.total;
       } catch (e) {
         this.errors.push(e);
         console.error(e);
@@ -220,13 +251,18 @@ export default {
       if (this.query.trim() === '') {
         return this.getUsers();
       }
+
+      const skip = (this.page - 1) * this.perPage;
+
       try {
-        const response = await axios.get(`http://localhost:8000/users/search/${this.query}`);
-        const sorted = response.data.sort((a, b) => a.username - b.username).map((user, idx) => ({ ...user, index: idx + 1 }));;
-        this.users = sorted;
-        this.page = 1;
-        this.pages = [];
-        this.setPages();
+        const response = await axios.get(`http://localhost:8000/users/search/${this.query}`, {
+          params: { skip, limit: this.perPage }
+        });
+        this.users = response.data.items.map((user, idx) => ({
+          ...user,
+          index: (this.page - 1) * this.perPage + idx + 1
+        }));
+        this.totalItems = response.data.total;
       } catch (e) {
         this.errors.push(e);
         console.error(e);
@@ -247,17 +283,18 @@ export default {
       return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
     },
     setPages() {
-      let numberOfPages = Math.ceil(this.articles.length / this.perPage);
+      let numberOfPages = Math.ceil(this.users.length / this.perPage);
       for (let index = 1; index <= numberOfPages; index++) {
         this.pages.push(index);
       }
     },
-    paginate(users) {
-      let page = this.page;
-      let perPage = this.perPage;
-      let from = (page * perPage) - perPage;
-      let to = (page * perPage);
-      return users.slice(from, to);
+    async changePage(newPage) {
+      this.page = newPage;
+      if (this.query.trim() === '') {
+        await this.getUsers();
+      } else {
+        await this.getFilteredUsers();
+      }
     },
     openAddModal() {
       this.modals.add = true
