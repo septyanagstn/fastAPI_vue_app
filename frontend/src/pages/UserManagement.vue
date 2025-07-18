@@ -48,133 +48,38 @@
           </tbody>
         </table>
         <div class="clearfix btn-group col-md-2 offset-md-5">
-          <button type="button" class="text-dark btn btn-sm btn-outline-secondary" @click="changePage(page - 1)"
-            :disabled="page === 1"> <span class="ti-angle-double-left"></span> </button>
-
-          <button v-for="n in paginatedPages" :key="n" class="text-dark btn btn-sm btn-outline-secondary"
-            :class="{ 'active': page === n }" @click="changePage(n)">
-            {{ n }}
-          </button>
-
-          <button type="button" class="text-dark btn btn-sm btn-outline-secondary" @click="changePage(page + 1)"
-            :disabled="page === totalPages"> <span class="ti-angle-double-right"></span> </button>
+          <Pagination :currentPage="page" :totalPages="totalPages" @change="changePage" />
         </div>
       </card>
     </div>
 
-    <!-- Modal Add -->
-    <div v-if="modals.add" class="modal fade show d-block" style="background-color: rgba(0, 0, 0, 0.5); z-index: 1050">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Tambah User</h4>
-          </div>
-          <div class="modal-body">
-            <form>
-              <div class="form-group">
-                <label for="username" class="form-label" style="font-weight: bold; font-size: large">Username</label>
-                <input type="text" v-model="form.username" class="form-control border" name="username"
-                  placeholder="Add a username" required />
-              </div>
-              <div class="form-group">
-                <label for="email" class="form-label" style="font-weight: bold; font-size: large">Email</label>
-                <input type="email" v-model="form.email" class="form-control border" name="email"
-                  placeholder="Add a email" required />
-              </div>
-              <div class="form-group">
-                <label for="fullname" class="form-label" style="font-weight: bold; font-size: large">Fullname</label>
-                <input type="text" v-model="form.full_name" class="form-control border" name="fullname"
-                  placeholder="Add a fullname" required></input>
-              </div>
-              <div class="form-group">
-                <label for="password" class="form-label" style="font-weight: bold; font-size: large">Password</label>
-                <input type="password" v-model="form.password" class="form-control border" name="password"
-                  placeholder="Add a password" required />
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" @click="closeAddModal()">
-              Close
-            </button>
-            <button class="btn btn-success" @click="addUsers(), closeAddModal(), resetForm()">Submit</button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- Modals -->
+    <AddUserModal v-if="modals.add" :form="form" @close="closeAddModal" @submit="handleAddUser" />
+    <EditUserModal v-if="modals.edit" :form="form" @close="closeEditModal" @submit="handleUpdateUser" />
+    <DeleteUserModal v-if="modals.delete" :user="selectedUser" @close="closeDeleteModal" @confirm="handleDeleteUser" />
 
-    <!-- Modal Edit -->
-    <div v-if="modals.edit" class="modal fade show d-block" style="background-color: rgba(0, 0, 0, 0.5); z-index: 1050">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Update User</h4>
-          </div>
-          <div class="modal-body">
-            <form>
-              <div class="form-group">
-                <label for="username" class="form-label" style="font-weight: bold; font-size: large">Username</label>
-                <input type="text" v-model="form.username" class="form-control border" name="username"
-                  placeholder="Add a username" required />
-              </div>
-              <div class="form-group">
-                <label for="email" class="form-label" style="font-weight: bold; font-size: large">Email</label>
-                <input type="email" v-model="form.email" class="form-control border" name="email"
-                  placeholder="Add a email" required />
-              </div>
-              <div class="form-group">
-                <label for="fullname" class="form-label" style="font-weight: bold; font-size: large">Fullname</label>
-                <input type="text" v-model="form.full_name" class="form-control border" name="fullname"
-                  placeholder="Add a fullname" required></input>
-              </div>
-              <div class="form-group">
-                <label for="password" class="form-label" style="font-weight: bold; font-size: large">Password</label>
-                <input type="password" v-model="form.password" class="form-control border" name="password"
-                  placeholder="Add a password" required />
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" @click="closeEditModal()">
-              Close
-            </button>
-            <button class="btn btn-success" @click="updateUsers(), closeEditModal(), resetForm()">Submit</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal Delete -->
-    <div v-if="modals.delete" class="modal fade show d-block"
-      style="background-color: rgba(0, 0, 0, 0.5); z-index: 1050">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Hapus User</h4>
-          </div>
-          <div class="modal-body">
-            <p>Yakin ingin menghapus User?</p>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" @click="closeDeleteModal()">
-              Batal
-            </button>
-            <button class="btn btn-danger" @click="deleteUsers(), closeDeleteModal()">Hapus</button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import Pagination from "../components/Pagination.vue";
+import AddUserModal from "../components/User/AddUser.vue";
+import EditUserModal from "../components/User/EditUser.vue";
+import DeleteUserModal from "../components/User/DeleteUser.vue";
 
 export default {
+  components: {
+    Pagination,
+    AddUserModal,
+    EditUserModal,
+    DeleteUserModal,
+  },
   data() {
     return {
       user_id: "",
       users: [],
+      selectedUser: null,
       totalItems: 0,
       page: 1,
       perPage: 10,
@@ -204,9 +109,6 @@ export default {
     }
   },
   computed: {
-    // displayedUsers() {
-    //   return this.paginate(this.users);
-    // }
     totalPages() {
       return Math.ceil(this.totalItems / this.perPage);
     },
@@ -319,8 +221,12 @@ export default {
       }
     },
     openDeleteModal(id) {
-      this.modals.delete = true
-      this.user_id = id
+      const user = this.users.find(u => u._id === id);
+      if (user) {
+        this.selectedUser = user;
+        this.user_id = id;
+        this.modals.delete = true;
+      }
     },
     closeAddModal() {
       this.modals.add = false
@@ -341,16 +247,15 @@ export default {
     },
     async addUsers() {
       try {
-        const response = await axios.post("http://localhost:8000/users", {
+        const response = await axios.post("http://localhost:8000/users/", {
           username: this.form.username,
           full_name: this.form.full_name,
           email: this.form.email,
           password: this.form.password,
         });
-        const data = response.data
+        const data = response.data;
 
-        alert(data.message)
-        this.getUsers()
+        alert(data.message);
       } catch (e) {
         this.errors.push(e);
         console.error(e);
@@ -364,10 +269,9 @@ export default {
           full_name: this.form.full_name,
           password: this.form.password
         });
-        const data = response.data
+        const data = response.data;
 
-        alert(data.message)
-        this.getUsers()
+        alert(data.message);
       } catch (e) {
         this.errors.push(e);
         console.error(e);
@@ -384,6 +288,23 @@ export default {
         this.errors.push(e);
         console.error(e);
       }
+    },
+    async handleAddUser() {
+      await this.addUsers();
+      this.resetForm();
+      this.getUsers();
+      this.closeAddModal();
+    },
+    async handleUpdateUser() {
+      await this.updateUsers();
+      this.resetForm();
+      this.getUsers();
+      this.closeEditModal();
+    },
+    async handleDeleteUser() {
+      await this.deleteUsers();
+      this.getUsers();
+      this.closeDeleteModal();
     },
   },
   mounted() {

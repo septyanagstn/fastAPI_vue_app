@@ -27,24 +27,23 @@
       </router-link>
     </div>
     <div class="clearfix btn-group col-md-2 offset-md-5">
-      <button type="button" class="text-dark btn btn-sm btn-outline-secondary" @click="changePage(page - 1)"
-        :disabled="page === 1"> <span class="ti-angle-double-left"></span> </button>
-
-      <button v-for="n in paginatedPages" :key="n" class="text-dark btn btn-sm btn-outline-secondary"
-        :class="{ 'active': page === n }" @click="changePage(n)">
-        {{ n }}
-      </button>
-
-      <button type="button" class="text-dark btn btn-sm btn-outline-secondary" @click="changePage(page + 1)"
-        :disabled="page === totalPages"> <span class="ti-angle-double-right"></span> </button>
+      <Pagination 
+        :currentPage="page" 
+        :totalPages="totalPages" 
+        @change="changePage" 
+      />
     </div>
   </card>
 </template>
 
 <script>
 import axios from "axios";
+import Pagination from "../components/Pagination.vue";
 
 export default {
+  components: {
+    Pagination
+  },
   name: "ArticleList",
   data() {
     return {

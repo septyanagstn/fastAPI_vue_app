@@ -2,7 +2,9 @@ fastapi==0.110.0
 uvicorn==0.29.0
 pydantic==2.6.4
 email-validator==2.1.1
-motor==3.4.0
+motor==2.5.1
+pymongo==3.12.3
 passlib==1.7.4
 python-dotenv==1.0.1
 pyjwt==2.8.0
+bcrypt==4.1.3

@@ -120,14 +120,18 @@ async def create_user(user: User = Body(...)):
             detail="Username already exists"
         )
 
-    new_user = await database["users"].insert_one({
+    result = await database["users"].insert_one({
         "username": user.username,
         "email": user.email,
         "full_name": user.full_name,
         "password": pwd_context.hash(user.password),
         "disabled": user.disabled
     })
-    return {"message": "User created successfully", "user": new_user}
+
+    new_user = await database["users"].find_one({"_id": result.inserted_id})
+    new_user["_id"] = str(new_user["_id"])
+
+    return {"message": f"User {new_user['username']} created successfully", "user": new_user}
 
 # get User by ID
 @app.get("/users/{user_id}")
@@ -174,9 +178,12 @@ async def update_user_by_id(user_id: str, user: User = Body(...)):
 # Delete user by ID
 @app.delete("/users/{user_id}")
 async def delete_user(user_id: str):
+    deleted_user = await database["users"].find_one({"_id": ObjectId(user_id)})
+    deleted_user["_id"] = str(deleted_user["_id"])
+
     delete_result = await database["users"].delete_one({"_id": ObjectId(user_id)})
     if delete_result.deleted_count == 1:
-        return {"message": "User deleted successfully", "user_id": user_id}
+        return {"message": f"User {deleted_user['username']} deleted successfully", "user_id": user_id}
     return {"error": "User not found"}
 
 # Search users by username

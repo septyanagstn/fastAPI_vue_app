@@ -50,129 +50,37 @@
           </tbody>
         </table>
         <div class="clearfix btn-group col-md-2 offset-md-5">
-          <button type="button" class="text-dark btn btn-sm btn-outline-secondary" @click="changePage(page - 1)"
-            :disabled="page === 1"> <span class="ti-angle-double-left"></span> </button>
-
-          <button v-for="n in paginatedPages" :key="n" class="text-dark btn btn-sm btn-outline-secondary"
-            :class="{ 'active': page === n }" @click="changePage(n)">
-            {{ n }}
-          </button>
-
-          <button type="button" class="text-dark btn btn-sm btn-outline-secondary" @click="changePage(page + 1)"
-            :disabled="page === totalPages"> <span class="ti-angle-double-right"></span> </button>
+          <Pagination 
+            :currentPage="page" 
+            :totalPages="totalPages" 
+            @change="changePage" 
+          />
         </div>
       </card>
     </div>
 
-    <!-- Modal Add -->
-    <div v-if="modals.add" class="modal fade show d-block" style="background-color: rgba(0, 0, 0, 0.5); z-index: 1050">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Tambah Berita</h4>
-          </div>
-          <div class="modal-body">
-            <form>
-              <div class="form-group">
-                <label for="title" class="form-label" style="font-weight: bold; font-size: large">Title</label>
-                <input type="text" v-model="form.title" class="form-control border" name="title"
-                  placeholder="Add a title" required />
-              </div>
-              <div class="form-group">
-                <label for="author" class="form-label" style="font-weight: bold; font-size: large">Author</label>
-                <input type="text" v-model="form.author" class="form-control border" name="author"
-                  placeholder="Add a author" required />
-              </div>
-              <div class="form-group">
-                <label for="content" class="form-label" style="font-weight: bold; font-size: large">Content</label>
-                <textarea type="" v-model="form.content" class="form-control border" name="content"
-                  placeholder="Add a content" required></textarea>
-              </div>
-              <div class="form-group">
-                <label for="thumbnail" class="form-label" style="font-weight: bold; font-size: large">Thumbnail</label>
-                <input type="url" v-model="form.thumbnail" class="form-control border" name="thumbnail"
-                  placeholder="Add a thumbnail url" required />
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" @click="closeAddModal()">
-              Close
-            </button>
-            <button class="btn btn-success" @click="addArticle(), closeAddModal(), resetForm()">Submit</button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- Modals -->
+    <AddArticleModal v-if="modals.add" :form="form" @close="closeAddModal" @submit="handleAddArticle" />
+    <EditArticleModal v-if="modals.edit" :form="form" @close="closeEditModal" @submit="handleUpdateArticle" />
+    <DeleteArticleModal v-if="modals.delete" @close="closeDeleteModal" @confirm="handleDeleteArticle" />
 
-    <!-- Modal Edit -->
-    <div v-if="modals.edit" class="modal fade show d-block" style="background-color: rgba(0, 0, 0, 0.5); z-index: 1050">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Update Berita</h4>
-          </div>
-          <div class="modal-body">
-            <form>
-              <div class="form-group">
-                <label for="title" class="form-label" style="font-weight: bold; font-size: large">Title</label>
-                <input type="text" v-model="form.title" class="form-control border" name="title"
-                  placeholder="Update a title" required />
-              </div>
-              <div class="form-group">
-                <label for="author" class="form-label" style="font-weight: bold; font-size: large">Author</label>
-                <input type="text" v-model="form.author" class="form-control border" name="author"
-                  placeholder="Update a author" required />
-              </div>
-              <div class="form-group">
-                <label for="content" class="form-label" style="font-weight: bold; font-size: large">Content</label>
-                <textarea type="" v-model="form.content" class="form-control border" name="content"
-                  placeholder="Update a content" required></textarea>
-              </div>
-              <div class="form-group">
-                <label for="thumbnail" class="form-label" style="font-weight: bold; font-size: large">Thumbnail</label>
-                <input type="url" v-model="form.thumbnail" class="form-control border" name="thumbnail"
-                  placeholder="Update a thumbnail url" required />
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" @click="closeEditModal()">
-              Close
-            </button>
-            <button class="btn btn-success" @click="updateArticle(), closeEditModal(), resetForm()">Submit</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal Delete -->
-    <div v-if="modals.delete" class="modal fade show d-block"
-      style="background-color: rgba(0, 0, 0, 0.5); z-index: 1050">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Hapus Berita</h4>
-          </div>
-          <div class="modal-body">
-            <p>Yakin ingin menghapus berita?</p>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" @click="closeDeleteModal()">
-              Batal
-            </button>
-            <button class="btn btn-danger" @click="deleteArticle(), closeDeleteModal()">Hapus</button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import Pagination from "../components/Pagination.vue";
+import AddArticleModal from "../components/Article/AddArticle.vue";
+import EditArticleModal from "../components/Article/EditArticle.vue";
+import DeleteArticleModal from "../components/Article/DeleteArticle.vue";
 
 export default {
+  components: {
+    Pagination,
+    AddArticleModal,
+    EditArticleModal,
+    DeleteArticleModal,
+  },
   data() {
     return {
       article_id: "",
@@ -389,6 +297,23 @@ export default {
         this.errors.push(e);
         console.error(e);
       }
+    },
+    async handleAddArticle() {
+      await this.addArticle();
+      this.resetForm();
+      this.getArticles();
+      this.closeAddModal();
+    },
+    async handleUpdateArticle() {
+      await this.updateArticle();
+      this.resetForm();
+      this.getArticles();
+      this.closeEditModal();
+    },
+    async handleDeleteArticle() {
+      await this.deleteArticle();
+      this.getArticles();
+      this.closeDeleteModal();
     },
   },
   mounted() {
