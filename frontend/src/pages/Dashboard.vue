@@ -1,52 +1,59 @@
 <template>
   <card>
-    <div class="mb-4 d-flex justify-content-between align-items-center">
-      <div>
-        <h4 class="card-title mb-0">Daftar Berita</h4>
-        <p class="card-category mb-0 text-muted">Temukan berita terbaru</p>
+    <div>
+      <div class="mb-4 d-flex justify-content-between align-items-center">
+        <div>
+          <h4 class="card-title mb-0">Daftar Berita</h4>
+          <p class="card-category mb-0 text-muted">Temukan berita terbaru</p>
+        </div>
+        <input type="text" class="col-6 form-control border rounded" v-model="query" name="search"
+          placeholder="Search..." />
       </div>
-      <input type="text" class="col-6 form-control border rounded" v-model="query" name="search"
-        placeholder="Search..." />
-    </div>
-    <div v-for="(article, index) in articles" :key="index"
-      class="d-flex bg-light text-dark rounded overflow-hidden mb-3 shadow" style="height: 150px;">
-      <router-link :to="{ name: 'article detail', params: { id: article._id } }"
-        class="d-flex w-100 text-decoration-none text-dark">
-        <!-- Gambar -->
-        <div class="col-md-3">
-          <img :src="article.thumbnail" alt="thumbnail" class="h-100 w-100 object-fit-cover" />
-        </div>
 
-        <!-- Konten -->
-        <div class="p-3 d-flex flex-column justify-content-center flex-grow-1 hover">
-          <h5 class="mb-2">{{ article.title }}</h5>
-          <div class="d-flex align-items-center text-secondary small">
-            <span class="me-2">{{ article.author }}</span>-<span class="ms-2">{{ formatDate(article.post_date) }}</span>
-          </div>
+      <loader v-if="is_loading" />
+
+      <div v-else>
+        <div v-for="(article, index) in articles" :key="index"
+          class="d-flex bg-light text-dark rounded overflow-hidden mb-3 shadow" style="height: 150px;">
+          <router-link :to="{ name: 'article detail', params: { id: article._id } }"
+            class="d-flex w-100 text-decoration-none text-dark">
+            <!-- Gambar -->
+            <div class="col-md-3">
+              <img :src="article.thumbnail" alt="thumbnail" class="h-100 w-100 object-fit-cover" />
+            </div>
+
+            <!-- Konten -->
+            <div class="p-3 d-flex flex-column justify-content-center flex-grow-1 hover">
+              <h5 class="mb-2">{{ article.title }}</h5>
+              <div class="d-flex align-items-center text-secondary small">
+                <span class="me-2">{{ article.author }}</span>-<span class="ms-2">{{ formatDate(article.post_date)
+                  }}</span>
+              </div>
+            </div>
+          </router-link>
         </div>
-      </router-link>
-    </div>
-    <div class="clearfix btn-group col-md-2 offset-md-5">
-      <Pagination 
-        :currentPage="page" 
-        :totalPages="totalPages" 
-        @change="changePage" 
-      />
+        <div class="clearfix btn-group col-md-2 offset-md-5">
+          <Pagination :currentPage="page" :totalPages="totalPages" @change="changePage" />
+        </div>
+      </div>
     </div>
   </card>
 </template>
 
 <script>
 import axios from "axios";
-import Pagination from "../components/Pagination.vue";
+import Pagination from "@/components/Pagination.vue";
+import loader from "@/components/Loader.vue";
 
 export default {
   components: {
-    Pagination
+    Pagination,
+    loader,
   },
   name: "ArticleList",
   data() {
     return {
+      is_loading: true,
       articles: [],
       totalItems: 0,
       errors: [],
@@ -92,6 +99,7 @@ export default {
     async getArticles() {
       const skip = (this.page - 1) * this.perPage;
       try {
+        this.is_loading = true;
         const response = await axios.get("http://localhost:8000/articles/", {
           params: { skip, limit: this.perPage }
         });
@@ -100,6 +108,8 @@ export default {
       } catch (e) {
         this.errors.push(e);
         console.error(e);
+      } finally {
+        this.is_loading = false;
       }
     },
     async getFilteredArticles() {

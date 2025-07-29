@@ -15,7 +15,10 @@
             Add User <span class="ti-plus"></span>
           </button>
         </div>
-        <table class="table">
+
+        <loader v-if="is_loading" />
+
+        <table v-else class="table">
           <thead class="table-secondary">
             <tr>
               <th>#</th>
@@ -63,10 +66,11 @@
 
 <script>
 import axios from "axios";
-import Pagination from "../components/Pagination.vue";
-import AddUserModal from "../components/User/AddUser.vue";
-import EditUserModal from "../components/User/EditUser.vue";
-import DeleteUserModal from "../components/User/DeleteUser.vue";
+import Pagination from "@/components/Pagination.vue";
+import AddUserModal from "@/components/User/AddUser.vue";
+import EditUserModal from "@/components/User/EditUser.vue";
+import DeleteUserModal from "@/components/User/DeleteUser.vue";
+import loader from "@/components/Loader.vue";
 
 export default {
   components: {
@@ -74,9 +78,11 @@ export default {
     AddUserModal,
     EditUserModal,
     DeleteUserModal,
+    loader,
   },
   data() {
     return {
+      is_loading: true,
       user_id: "",
       users: [],
       selectedUser: null,
@@ -135,6 +141,7 @@ export default {
     async getUsers() {
       const skip = (this.page - 1) * this.perPage;
       try {
+        this.is_loading = true;
         const response = await axios.get("http://localhost:8000/users/", {
           params: { skip, limit: this.perPage }
         });
@@ -146,6 +153,8 @@ export default {
       } catch (e) {
         this.errors.push(e);
         console.error(e);
+      } finally {
+        this.is_loading = false;
       }
     },
     async getFilteredUsers() {

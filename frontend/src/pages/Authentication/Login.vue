@@ -1,6 +1,5 @@
 <template>
-    <div class="container bg-white p-5 border border-secondary rounded shadow d-flex flex-column align-items-center justify-content-center"
-        style="max-width: 400px; margin: 40px auto 0 auto;">
+    <div class="container bg-white p-5 border border-secondary rounded shadow d-flex flex-column align-items-center justify-content-center" style="max-width: 400px; margin: 40px auto 0 auto;">
         <h2 class="mb-5 text-center" style="font-weight: bold;">Login</h2>
         <form @submit.prevent="login()">
             <div class="form-group">
